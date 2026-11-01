@@ -1,0 +1,870 @@
+/* ============================================================
+   Jana's Interactive Portfolio — Book Style
+   RTL Arabic Page-Flip Portfolio
+   ============================================================ */
+
+/* ---------- متغيرات الألوان والخطوط ---------- */
+:root {
+  /* الصفحة 1: نبذة عني */
+  --c1-bg: #F7DBBC;
+  --c1-text: #57351D;
+  --c1-font: 'Amiri', 'Amiri-Local', serif;
+
+  /* الصفحة 2: إيسو كافيه */
+  --c2-bg: #F5F5DC;
+  --c2-text: #57351D;
+  --c2-font: 'Lateef', 'Lateef-Fallback', serif;
+
+  /* الصفحة 3: دُرة الملاعب */
+  --c3-bg: #225373;
+  --c3-text: #F7F7F7;
+  --c3-font: 'Amiri', 'Amiri-Local', serif;
+
+  /* الصفحة 4: أراولا كافيه */
+  --c4-bg: #F2C89B;
+  --c4-text: #57351D;
+  --c4-font: 'Playfair Display', 'Playfair-Local', serif;
+
+  --book-width: 860px;
+  --book-height: 560px;
+  --flip-duration: 650ms;
+  --shadow-color: rgba(0, 0, 0, 0.25);
+}
+
+/* --------- إعادة تعيين أساسية --------- */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  lang: ar;
+}
+
+body {
+  background: #f5efe4;
+  color: var(--c1-text);
+  font-family: var(--c1-font);
+  font-size: 16px;
+  line-height: 1.7;
+  direction: rtl;
+  text-align: right;
+  overflow-x: hidden;
+  min-height: 100dvh;
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+strong {
+  font-weight: bold;
+}
+
+/* --------- خطوط محلية ----------
+   Amiri (محلية)
+   Playfair Display (محلية)
+   Lateef (من Google Fonts أعلاه) --------- */
+@font-face {
+  font-family: 'Amiri-Local';
+  src: url('../../fonts/Amiri-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Playfair-Local';
+  src: url('../../Playfair_Display/static/PlayfairDisplay-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Playfair-Local';
+  src: url('../../Playfair_Display/static/PlayfairDisplay-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* --------- 책 الإطار العام --------- */
+.book {
+  position: relative;
+  width: min(var(--book-width), 92vw);
+  height: min(var(--book-height), 82vh);
+  aspect-ratio: 3 / 2;
+  max-height: 88vh;
+  margin: 4vh auto 0 auto;
+  background: var(--c1-bg);
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+  perspective: 1400px;
+  overflow: hidden;
+}
+
+.viewport {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* --------- الصفحة --------- */
+.page {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  border-radius: 6px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(0);
+  z-index: 1;
+  transition: opacity 0.3s ease, z-index 0s ease;
+}
+
+.page--active {
+  pointer-events: auto;
+  opacity: 1;
+  z-index: 5;
+}
+
+.page p,
+.page h1,
+.page h2,
+.page li,
+.page figcaption,
+.page a {
+  color: inherit;
+}
+
+.page a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+/* خلفية كل صفحة ولونها عبر جافاسكريبت (class book--pX على .book) */
+.book--p1 { background: var(--c1-bg); }
+.book--p2 { background: var(--c2-bg); }
+.book--p3 { background: var(--c3-bg); }
+.book--p4 { background: var(--c4-bg); }
+
+.p1 { color: var(--c1-text); background: var(--c1-bg); font-family: var(--c1-font); }
+.p2 { color: var(--c2-text); background: var(--c2-bg); font-family: var(--c2-font); }
+.p3 { color: var(--c3-text); background: var(--c3-bg); font-family: var(--c3-font); }
+.p4 { color: var(--c4-text); background: var(--c4-bg); font-family: var(--c4-font); }
+
+/* تكبير نصوص الصفحة الأولى بدرجتين */
+.p1 { font-size: 18px; }
+.p1 .page-title { font-size: 36px; }
+.p1 .bio { font-size: 19px; }
+.p1 .about-details { font-size: 18px; }
+.p1 .my-projects h2 { font-size: 22px; }
+.p1 .contact h2 { font-size: 22px; }
+.p1 .page-footer { font-size: 15px; }
+
+.p2 a,
+.p3 a,
+.p4 a {
+  color: inherit;
+  opacity: 0.95;
+}
+
+/* --------- محتوى الصفحة --------- */
+.page-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 32px 40px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.page-content {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding-top: 16px;
+  font-size: 13px;
+  opacity: 0.7;
+  text-align: center;
+}
+
+.page-title {
+  font-size: 34px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.bio {
+  font-size: 17px;
+  opacity: 0.92;
+  max-width: 90%;
+  text-align: right;
+}
+
+/* نبذة عني - تفاصيل */
+.about-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 16px;
+  opacity: 0.9;
+}
+
+.detail strong {
+  color: inherit;
+}
+
+/* قسم أعمالي */
+.my-projects h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  border-right: 3px solid;
+  padding-right: 10px;
+}
+
+.project-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.project-list li a {
+  display: block;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: background 0.2s ease;
+}
+
+.project-list li a:hover,
+.project-list li a:focus {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* قسم التواصل */
+.contact h2 {
+  font-size: 20px;
+  margin-bottom: 10px;
+  border-right: 3px solid;
+  padding-right: 10px;
+}
+
+.contact-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-list li a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: background 0.2s ease;
+}
+
+.contact-list li a:hover,
+.contact-list li a:focus {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* روابط الاتصال - واتساب وبريد */
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.contact-link .icon {
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.contact-link svg {
+  display: block;
+  flex: 0 0 auto;
+}
+
+.contact-link:hover,
+.contact-link:focus {
+  background: rgba(255, 255, 255, 0.8);
+  transform: scale(1.02);
+}
+
+/* رابط زيارة الموقع الإلكتروني */
+.visit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.visit-btn:hover {
+  transform: scale(1.03);
+}
+
+/* ألوان روابط الزيارة لكل مشروع */
+.p2 .visit-btn {
+  background: rgba(245, 245, 220, 0.2);
+  color: var(--c2-text);
+  border: 1px solid rgba(87, 53, 29, 0.3);
+}
+
+.p3 .visit-btn {
+  background: rgba(34, 83, 115, 0.2);
+  color: var(--c3-text);
+  border: 1px solid rgba(247, 247, 247, 0.3);
+}
+
+.p4 .visit-btn {
+  background: rgba(242, 200, 155, 0.2);
+  color: var(--c4-text);
+  border: 1px solid rgba(87, 53, 29, 0.3);
+}
+
+/* --------- تأثير الظهور التدريجي عند التمرير (Scroll Reveal) --------- */
+.reveal {
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+/* الإخفاء فقط عندما تعمل الجافاسكريبت —
+   إذا تعطلت فتبقى كل المحتويات مرئية وقابلة للوصول */
+html.js .reveal {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+html.js .reveal.reveal-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* تأخيرات متدرجة بين العناصر */
+.reveal:nth-child(2) { transition-delay: 0.1s; }
+.reveal:nth-child(3) { transition-delay: 0.2s; }
+.reveal:nth-child(4) { transition-delay: 0.3s; }
+.reveal:nth-child(5) { transition-delay: 0.4s; }
+.reveal:nth-child(6) { transition-delay: 0.5s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  html.js .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* --------- أزرار التنقل الأصغر وإخفاؤها عند التمرير --------- */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  padding: 8px 14px;       /* أصغر من السابق */
+  font-size: 14px;         /* أصغر من السابق */
+  font-weight: 700;
+  font-family: inherit;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--c1-text);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  touch-action: manipulation;
+  transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease, opacity 0.4s ease, visibility 0.4s ease;
+  opacity: 1;
+  visibility: visible;
+}
+
+.nav-btn-hidden {
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none;
+}
+
+.nav-btn:hover {
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.nav-btn:active {
+  transform: translateY(-50%) scale(0.96);
+}
+.project-logo {
+  margin-bottom: 16px;
+}
+
+/* شعار نصي (بديل للشعار الناقص) */
+.text-logo {
+  font-size: clamp(28px, 6vw, 48px);
+  font-weight: 900;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 20px;
+  opacity: 0.95;
+}
+
+/* التأكد من وضوح النص على الخلفيات الداكنة والفاتحة */
+.p2 .text-logo { color: var(--c2-text); }
+.p3 .text-logo { color: var(--c3-text); }
+.p4 .text-logo { color: var(--c4-text); }
+
+.logo-placeholder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 2px dashed rgba(255, 255, 255, 0.45);
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 15px;
+  opacity: 0.85;
+}
+
+.project-logo img {
+  max-height: 64px;
+  width: auto;
+  display: block;
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+/* شعار أراولا: تلوين أشكال الشعار بالبني الغامق نفسه المستخدم في نص الصفحة
+   (الفiltro يجعل الأبيض برأولاً معتماً بالبني والخلفية السوداء شفافة) */
+.p4 .project-logo img {
+  filter: url(#araola-brown);
+  mix-blend-mode: normal;
+  box-shadow: none;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.item img {
+  width: 100%;
+  max-width: 360px;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.item figcaption {
+  text-align: right;
+}
+
+.item figcaption strong {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.item figcaption p {
+  font-size: 15px;
+  opacity: 0.9;
+  max-width: 100%;
+}
+
+.item figcaption .item-price {
+  display: block;
+  margin-top: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  opacity: 1;
+}
+
+/* --------- طبقة التقليب --------- */
+.page-turn {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-origin: right center;
+  transform: rotateY(0deg);
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: transform var(--flip-duration) cubic-bezier(0.35, 0, 0.65, 1),
+    opacity 0.3s ease;
+}
+
+.turn-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 6px;
+}
+
+.turn-front {
+  background: var(--c1-bg);
+  box-shadow: 0 10px 30px var(--shadow-color);
+  z-index: 2;
+}
+
+.turn-back {
+  background: var(--c2-bg);
+  transform: rotateY(180deg);
+  box-shadow: 0 10px 30px var(--shadow-color);
+  z-index: 1;
+}
+
+.turn-shadow {
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: linear-gradient(
+    to left,
+    rgba(0, 0, 0, 0.18) 0%,
+    rgba(0, 0, 0, 0.06) 40%,
+    transparent 100%
+  );
+  pointer-events: none;
+  z-index: 3;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+/* زاوية التقليب (التلامس بالسحب) */
+.page-corner {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  cursor: pointer;
+  z-index: 15;
+  touch-action: none;
+  opacity: 0.55;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.page-corner:hover,
+.page-corner:focus {
+  opacity: 0.85;
+  transform: scale(1.05);
+}
+
+.corner-next {
+  bottom: 18px;
+  right: 18px;
+  border-bottom-right-radius: 6px;
+  background: conic-gradient(from 180deg at right bottom, transparent 75%, rgba(0,0,0,0.15) 100%);
+  clip-path: polygon(100% 100%, 0% 100%, 100% 30%);
+}
+
+.corner-prev {
+  bottom: 18px;
+  left: 18px;
+  border-bottom-left-radius: 6px;
+  background: conic-gradient(from 0deg at left bottom, transparent 75%, rgba(0,0,0,0.15) 100%);
+  clip-path: polygon(0% 100%, 100% 100%, 0% 30%);
+}
+
+/* --------- أزرار التنقل --------- */
+.nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 20;
+  padding: 8px 14px;       /* أصغر وأنيق */
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.85);
+  color: var(--c1-text);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  touch-action: manipulation;
+  transition: transform 0.15s ease, background 0.2s ease, box-shadow 0.2s ease,
+    opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.nav-btn:hover {
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.nav-btn:active {
+  transform: translateY(-50%) scale(0.96);
+}
+
+.nav-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
+
+.nav-btn .arrow {
+  font-size: 18px;
+  margin: 0 4px;
+  line-height: 1;
+}
+
+.nav-prev {
+  right: 24px;
+}
+
+.nav-next {
+  left: 24px;
+}
+
+/* --------- مؤشر الصفحة --------- */
+.page-indicator {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  font-size: 17px;
+  font-weight: 700;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--c1-text);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  pointer-events: none;
+}
+
+/* --------- تلميح التصفح --------- */
+.page-hint {
+  position: absolute;
+  bottom: 74px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 19;
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.55);
+  padding: 6px 12px;
+  border-radius: 14px;
+  pointer-events: none;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.page-hint.show {
+  opacity: 1;
+}
+
+/* pulse مؤشر على الزاوية عند الزيارة الأولى */
+@keyframes peel-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,0,0,0.35); }
+  50% { transform: scale(1.12); box-shadow: 0 0 0 10px rgba(0,0,0,0.10); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+}
+
+.page-corner.hint-pulse {
+  animation: peel-pulse 2.2s infinite ease-in-out;
+}
+
+/* --------- توافق الجوال --------- */
+@media (max-width: 768px) {
+  .book {
+    width: 90vw;
+    height: min(86vh, 90vw * 1.55);
+    aspect-ratio: auto;
+    margin: 3vh auto 0 auto;
+    border-radius: 6px;
+  }
+
+  .page-inner {
+    padding: 24px 22px;
+  }
+
+  .page-title {
+    font-size: 26px;
+  }
+
+  .bio {
+    font-size: 15.5px;
+    max-width: 100%;
+    text-align: right;
+  }
+
+  .item img {
+    max-width: 100%;
+  }
+
+  .nav-btn {
+    top: auto;
+    bottom: 18px;
+    transform: none;
+    padding: 8px 14px;       /* أصغر على الجوال */
+    font-size: 13px;
+    border-radius: 8px;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .nav-btn-hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none;
+  }
+
+  .nav-prev {
+    right: 88px;
+    left: auto;
+  }
+
+  .nav-next {
+    left: 88px;
+    right: auto;
+  }
+
+  .page-indicator {
+    top: auto;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 15px;
+  }
+
+  .page-hint {
+    top: 56px;
+    bottom: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12.5px;
+  }
+
+  .page-corner {
+    width: 64px;
+    height: 64px;
+  }
+
+  .page-footer {
+    font-size: 12px;
+  }
+}
+
+/* شاشات الجوال الصغيرة جداً */
+@media (max-width: 480px) {
+  .book {
+    width: 94vw;
+    height: min(84vh, 94vw * 1.55);
+    margin: 2vh auto 0 auto;
+  }
+
+  .page-inner {
+    padding: 20px 18px;
+  }
+
+  .page-title {
+    font-size: 23px;
+  }
+
+  .bio {
+    font-size: 15px;
+  }
+
+  .nav-btn {
+    bottom: 14px;
+    padding: 8px 14px;
+    font-size: 12px;
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .nav-btn-hidden {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none;
+  }
+
+  .nav-prev { right: 72px; }
+  .nav-next { left: 72px; }
+
+  .page-indicator {
+    top: auto;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 14px;
+    padding: 5px 12px;
+  }
+
+  .page-hint {
+    top: 50px;
+    font-size: 12px;
+  }
+}
+
+/* --------- تقليل الحركة --------- */
+@media (prefers-reduced-motion: reduce) {
+  .page-turn,
+  .turn-shadow,
+  .page-corner,
+  .nav-btn,
+  .page-hint,
+  .page {
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+
+  .page-hint.show {
+    opacity: 0.6;
+  }
+
+  .page-corner.hint-pulse {
+    animation: none;
+    opacity: 0.55;
+  }
+}
+
+/* --------- حالات التمرير داخل الصفحات --------- */
+.page-inner::-webkit-scrollbar {
+  width: 8px;
+}
+
+.page-inner::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
